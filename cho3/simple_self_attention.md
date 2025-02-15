@@ -58,7 +58,4 @@ z(2) = Σ(j=1 to T) α(2j) * x(j)
 2. **Weights determine importance:** The attention weights α(ij) decide how much influence each word has when computing the context vector.
 3. **No trainable parameters (yet):** This is a simplified, **non-trainable** version of self-attention, used for conceptual understanding.
 
-## What's Next?
-
-In **Section 3.3.2**, this simple mechanism will be extended into **real self-attention**, where the attention weights are learned using trainable parameters, forming the foundation of transformer models.
 
