@@ -1,13 +1,3 @@
-Thanks, Koyilbek! From your screenshot, I see you're working on a Markdown file with Python code for **Multi-Head Self-Attention**, but:
-
-* The code block starts incorrectly with ` ```python ` but lacks proper closing.
-* The indentation and line wrapping look off.
-* You only included the constructor, but the full class (`forward` method) is missing.
-
-Here’s a **clean and complete rewrite** of your Markdown and PyTorch code block, fully suitable for a GitHub `README.md`:
-
----
-
 ````markdown
 ## 🧠 Multi-Head Self-Attention from Scratch (PyTorch)
 
