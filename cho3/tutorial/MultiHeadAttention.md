@@ -136,15 +136,3 @@ visualize_attention(attn_weights[0][0].detach().numpy())
 
 ```
 
----
-
-Would you like me to generate a full GitHub-ready folder structure for this project including:
-- `self_attention.py`
-- `multihead_attention.py`
-- `visualize.py`
-- `main.py`
-- `requirements.txt`
-- and this `README.md`?
-
-Let me know!
-```
