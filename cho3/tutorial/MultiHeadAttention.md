@@ -28,7 +28,7 @@ Multi-head self-attention enhances a model’s capacity to learn richer represen
 
 ## ✅ Multi-Head Self-Attention Implementation (PyTorch)
 
-
+'''python 
 import torch
 import torch.nn as nn
 
