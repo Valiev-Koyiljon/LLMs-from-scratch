@@ -1,28 +1,26 @@
+Thanks, Koyilbek! From your screenshot, I see you're working on a Markdown file with Python code for **Multi-Head Self-Attention**, but:
+
+* The code block starts incorrectly with ` ```python ` but lacks proper closing.
+* The indentation and line wrapping look off.
+* You only included the constructor, but the full class (`forward` method) is missing.
+
+Here’s a **clean and complete rewrite** of your Markdown and PyTorch code block, fully suitable for a GitHub `README.md`:
+
+---
+
 ````markdown
-# 🧠 Multi-Head Self-Attention from Scratch in PyTorch
+## 🧠 Multi-Head Self-Attention from Scratch (PyTorch)
 
-This repository implements **Self-Attention** and **Multi-Head Self-Attention** mechanisms using **PyTorch**, core components of Transformer-based architectures. These attention mechanisms empower models to dynamically focus on relevant parts of sequences for each prediction step.
-
----
-
-## 🔍 What is Multi-Head Self-Attention?
-
-Multi-head self-attention enhances a model’s capacity to learn richer representations by computing attention multiple times in **parallel** — each with different learnable projections. Every "head" can focus on different aspects of the sequence.
-
-### 💡 Why Use Multiple Heads?
-
-- One head might capture **syntactic** relationships.
-- Another might focus on **semantic** meanings.
-- Promotes diversity in learned attention patterns.
+Multi-head self-attention allows the model to attend to different parts of the input sequence from multiple representation subspaces. It splits the embedding into multiple "heads", performs attention in parallel, and then combines the outputs.
 
 ---
 
-## 🧮 Steps in Multi-Head Self-Attention
+## 📌 Steps in Multi-Head Self-Attention
 
 1. Linearly project the input into multiple sets of Queries (`Q`), Keys (`K`), and Values (`V`).
 2. Compute **scaled dot-product attention** independently in each head.
-3. Concatenate all head outputs.
-4. Apply a final linear projection to combine the heads' information.
+3. Concatenate the outputs of all heads.
+4. Apply a final linear projection.
 
 ---
 
@@ -36,38 +34,38 @@ class MultiHeadSelfAttention(nn.Module):
     def __init__(self, embed_size, num_heads):
         super(MultiHeadSelfAttention, self).__init__()
         assert embed_size % num_heads == 0, "Embedding size must be divisible by number of heads"
-
+        
         self.embed_size = embed_size
         self.num_heads = num_heads
         self.head_dim = embed_size // num_heads
 
-        # Learnable projection matrices for all heads
+        # Linear projection layers for Q, K, V
         self.W_q = nn.Linear(embed_size, embed_size)
         self.W_k = nn.Linear(embed_size, embed_size)
         self.W_v = nn.Linear(embed_size, embed_size)
 
-        # Output linear layer
+        # Final linear layer after concatenation
         self.fc_out = nn.Linear(embed_size, embed_size)
 
     def forward(self, X):
         batch_size, seq_len, _ = X.shape
 
-        # Step 1: Compute Q, K, V
-        Q = self.W_q(X)
+        # Step 1: Project input into Q, K, V
+        Q = self.W_q(X)  # (B, T, E)
         K = self.W_k(X)
         V = self.W_v(X)
 
-        # Step 2: Reshape for multi-head attention
+        # Step 2: Split into heads and reshape -> (B, H, T, D)
         Q = Q.view(batch_size, seq_len, self.num_heads, self.head_dim).transpose(1, 2)
         K = K.view(batch_size, seq_len, self.num_heads, self.head_dim).transpose(1, 2)
         V = V.view(batch_size, seq_len, self.num_heads, self.head_dim).transpose(1, 2)
 
-        # Step 3: Scaled Dot-Product Attention
-        scores = torch.matmul(Q, K.transpose(-2, -1)) / self.head_dim ** 0.5
+        # Step 3: Scaled dot-product attention
+        scores = torch.matmul(Q, K.transpose(-2, -1)) / (self.head_dim ** 0.5)
         attention_weights = torch.softmax(scores, dim=-1)
-        out = torch.matmul(attention_weights, V)
+        out = torch.matmul(attention_weights, V)  # (B, H, T, D)
 
-        # Step 4: Concatenate heads and apply final projection
+        # Step 4: Concatenate heads and pass through final linear layer
         out = out.transpose(1, 2).contiguous().view(batch_size, seq_len, self.embed_size)
         out = self.fc_out(out)
 
@@ -76,63 +74,38 @@ class MultiHeadSelfAttention(nn.Module):
 
 ---
 
-## 🧪 Example Usage
+## 🔍 Example Usage
 
 ```python
-from multihead_attention import MultiHeadSelfAttention
-import torch
-
 batch_size, seq_len, embed_size, num_heads = 2, 5, 8, 2
 X = torch.rand(batch_size, seq_len, embed_size)
 
 mha = MultiHeadSelfAttention(embed_size, num_heads)
 output, attn_weights = mha(X)
 
-print("Output shape:", output.shape)  # (2, 5, 8)
-print("Attention shape:", attn_weights.shape)  # (2, 2, 5, 5)
+print("Output shape:", output.shape)          # torch.Size([2, 5, 8])
+print("Attention shape:", attn_weights.shape) # torch.Size([2, 2, 5, 5])
 ```
 
 ---
 
-## 📊 Visualizing Attention Weights
+## 📊 Attention Visualization
 
-You can visualize the attention matrix from any head using `matplotlib` and `seaborn`.
+You can visualize attention weights using `matplotlib` and `seaborn`.
 
 ```python
-from visualize import visualize_attention
+import matplotlib.pyplot as plt
+import seaborn as sns
 
-# Visualize attention weights from head 0 of batch 0
-visualize_attention(attn_weights[0][0].detach().numpy())
+def visualize_attention(attn_weights, head=0):
+    plt.figure(figsize=(6, 5))
+    sns.heatmap(attn_weights[0][head].detach().numpy(), cmap="viridis", annot=True)
+    plt.title(f"Attention Weights - Head {head}")
+    plt.xlabel("Key positions")
+    plt.ylabel("Query positions")
+    plt.show()
 ```
 
 ---
 
-## 🚀 Features
-
-* Implements **Multi-Head Self-Attention** from scratch
-* Includes both **single-head** and **multi-head** attention
-* Clean, modular PyTorch code for easy experimentation
-* Attention weight visualization utility
-
----
-
-## 🧩 TODO / Future Work
-
-* ✅ Add **Positional Encoding**
-* 🔜 Implement **Transformer Encoder Block**
-* 🔜 Support **Masking and Causal Attention**
-* 🔜 Apply to **NLP/vision downstream tasks**
-
----
-
-## 📚 References
-
-* [Attention Is All You Need (Vaswani et al., 2017)](https://arxiv.org/abs/1706.03762)
-* [The Illustrated Transformer – Jay Alammar](https://jalammar.github.io/illustrated-transformer/)
-
----
-
-💡 Pull requests, suggestions, and forks are welcome! Feel free to use and expand this repo in your own projects. 🌟
-
-```
 
